@@ -11,6 +11,8 @@ func _ready() -> void:
 	noise.noise_type = FastNoiseLite.TYPE_PERLIN
 	noise.seed = 1234
 	noise.frequency = 0.01
+	
+	generate_mesh()
 
 	for x in range(5):
 		for y in range(5):
@@ -19,21 +21,26 @@ func _ready() -> void:
 
 
 func generate_mesh():
+	var mesh_instance = $GroundMesh
+	if mesh_instance == null:
+		print("no mesh instance")
+		return
+
 	var mesh = ArrayMesh.new()
 	var arrays = []
 	arrays.resize(Mesh.ARRAY_MAX)
-
+		
 	var vertices = PackedVector3Array()
 	var indices = PackedInt32Array()
-		
-	# 1) Generate vertices
+	
+	# 1) Vertices
 	for x in range(size):
 		for z in range(size):
-			var n = noise.get_noise_2d(x, z)	  # Perlin noise
-			var y = n * height					 # scale to terrain height
+			var n = noise.get_noise_2d(x, z)
+			var y = n * height
 			vertices.append(Vector3(x, y, z))
-
-	# 2) Generate triangle indices
+	
+	# 2) Triangles
 	for x in range(size - 1):
 		for z in range(size - 1):
 			var i = x * size + z
@@ -41,10 +48,10 @@ func generate_mesh():
 				i, i + 1, i + size,
 				i + 1, i + size + 1, i + size
 			])
-		
-	# 3) Build mesh
+	
 	arrays[Mesh.ARRAY_VERTEX] = vertices
 	arrays[Mesh.ARRAY_INDEX] = indices
 	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
-		
-	self.mesh = mesh
+	
+	# Assign to child
+	mesh_instance.mesh = mesh
