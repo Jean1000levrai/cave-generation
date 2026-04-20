@@ -10,31 +10,50 @@ extends MeshInstance3D
 		iso_level = new_iso_level
 		update_mesh()
 
-@export_range(4, 256, 4) var resolution := 32:
+@export_range(4, 256, 4) var resolution := 8:
 	set(new_resolution):
 		resolution = new_resolution
-		update_mesh()
-@export var noise_seed := 0:
-	set(new_seed):
-		noise_seed = new_seed
 		update_mesh()
 @export var frequency := 0.1:
 	set(new_frequency):
 		frequency = new_frequency
 		update_mesh()
-@export var noise: FastNoiseLite:
+@export var noise: FastNoiseLite = FastNoiseLite.new():
 	set(new_noise):
 		noise = new_noise
 		update_mesh()
 		if noise:
 			noise.changed.connect(update_mesh)
+@export var noise_seed := 0:
+	set(new_seed):
+		noise_seed = new_seed
+		noise.seed = noise_seed
+		update_mesh()
+
 
 var density_field = []   # 3D data storage
 var vertices = []
 var indices = []
 
 func generate_density_field() -> void:
-	pass
+	density_field.resize(resolution)
+	var y = 1
+	
+	for x in range(resolution):
+		density_field[x] = []
+		density_field[x].resize(resolution)
+		# for y in range(resolution):
+		density_field[x][y] = []
+		density_field[x][y].resize(resolution)
+		for z in range(resolution):
+			density_field[x][y][z] = noise.get_noise_3d(x, y, z)
+			print(density_field[x][y][z])
+
+			var mesh_instance = MeshInstance3D.new()
+			mesh_instance.mesh = BoxMesh.new()
+			add_child(mesh_instance)
+			mesh_instance.position = Vector3(x, y, z)
+				
 
 func marching_cubes() -> void:
 	pass
