@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://dbuep8cl2xpca"]
 
 [ext_resource type="Script" uid="uid://dlaofliu603rq" path="res://scripts/terrain.gd" id="1_1bwju"]
+[ext_resource type="PackedScene" uid="uid://bu8vw2j7pnnne" path="res://scenes/camera.tscn" id="1_tqrgb"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_rfqa3"]
 sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
@@ -15,11 +16,14 @@ sky = SubResource("Sky_wlfn8")
 tonemap_mode = 2
 glow_enabled = true
 
-[sub_resource type="FastNoiseLite" id="FastNoiseLite_1bwju"]
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_tqrgb"]
 noise_type = 0
 metadata/_preview_in_3d_space_ = true
 
 [node name="generator" type="Node3D" unique_id=416190360]
+
+[node name="Camera" parent="." unique_id=1098878836 instance=ExtResource("1_tqrgb")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -44.454338, 0, 0)
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1423873297]
 transform = Transform3D(-0.8660254, -0.43301278, 0.25, 0, 0.49999997, 0.86602545, -0.50000006, 0.75, -0.43301266, 0, 0, 0)
@@ -29,11 +33,7 @@ shadow_enabled = true
 environment = SubResource("Environment_b4h4x")
 
 [node name="Terrain" type="MeshInstance3D" parent="." unique_id=1295411162]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.21946335, 102.97772, -5.189331)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.8661785, -5.022278, -5.189331)
 script = ExtResource("1_1bwju")
 grid_size = 2.0
-resolution = 4
-noise = SubResource("FastNoiseLite_1bwju")
-
-[node name="Camera3D" type="Camera3D" parent="." unique_id=15912304]
-transform = Transform3D(1, 0, 0, 0, 0.8749833, 0.4841531, 0, -0.4841531, 0.8749833, -14.157669, 72.36346, 190.30826)
+noise = SubResource("FastNoiseLite_tqrgb")

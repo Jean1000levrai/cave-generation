@@ -37,22 +37,25 @@ var indices = []
 
 func generate_density_field() -> void:
 	density_field.resize(resolution)
-	var y = 1
-	
+
 	for x in range(resolution):
 		density_field[x] = []
 		density_field[x].resize(resolution)
-		# for y in range(resolution):
-		density_field[x][y] = []
-		density_field[x][y].resize(resolution)
-		for z in range(resolution):
-			density_field[x][y][z] = noise.get_noise_3d(x, y, z)
-			print(density_field[x][y][z])
 
-			var mesh_instance = MeshInstance3D.new()
-			mesh_instance.mesh = BoxMesh.new()
-			add_child(mesh_instance)
-			mesh_instance.position = Vector3(x, y, z)
+		for y in range(resolution):
+			density_field[x][y] = []
+			density_field[x][y].resize(resolution)
+
+			for z in range(resolution):
+				var value = noise.get_noise_3d(x, y, z)
+				density_field[x][y][z] = value
+
+				print(value)
+
+				var cube = MeshInstance3D.new()
+				cube.mesh = BoxMesh.new()
+				cube.position = Vector3(x, y, z)
+				add_child(cube)
 				
 
 func marching_cubes() -> void:

@@ -1,3 +1,10 @@
 [gd_scene format=3 uid="uid://bu8vw2j7pnnne"]
 
+[ext_resource type="Script" uid="uid://cdgtxitgxrdd8" path="res://scripts/camera_3d.gd" id="1_cvpoc"]
+[ext_resource type="Script" uid="uid://dgl0akx1yno3x" path="res://scripts/cam_mvt.gd" id="1_kod1s"]
+
 [node name="Camera" type="Node3D" unique_id=1098878836]
+script = ExtResource("1_kod1s")
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=907225131]
+script = ExtResource("1_cvpoc")
