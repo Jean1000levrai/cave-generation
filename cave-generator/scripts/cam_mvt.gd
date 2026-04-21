@@ -14,10 +14,8 @@ func _ready():
 
 func _unhandled_input(event):
 	if event is InputEventMouseMotion:
-		# yaw (left/right)
 		rotate_y(-event.relative.x * sensitivity)
 
-		# pitch (up/down)
 		pitch -= event.relative.y * sensitivity
 		pitch = clamp(pitch, min_pitch, max_pitch)
 
@@ -35,7 +33,12 @@ func _process(delta):
 	if Input.is_action_pressed("cam_right"):
 		input_dir += transform.basis.x
 
-	input_dir.y = 0
+	# NEW: vertical movement (world up/down)
+	if Input.is_action_pressed("cam_up"):
+		input_dir += Vector3.UP
+	if Input.is_action_pressed("cam_down"):
+		input_dir -= Vector3.UP
+
 	input_dir = input_dir.normalized()
 
 	position += input_dir * speed * delta

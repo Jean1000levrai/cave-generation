@@ -49,17 +49,33 @@ func generate_density_field() -> void:
 			for z in range(resolution):
 				var value = noise.get_noise_3d(x, y, z)
 				density_field[x][y][z] = value
-
-				print(value)
-
-				var cube = MeshInstance3D.new()
-				cube.mesh = BoxMesh.new()
-				cube.position = Vector3(x, y, z)
-				add_child(cube)
 				
 
 func marching_cubes() -> void:
-	pass
+	# loop over all cubes
+	for x in range(resolution - 1):
+		for y in range(resolution - 1):
+			for z in range(resolution - 1):
+				# get corner values
+				var state_of_cube := true    # false: air or solid, true: mixed
+				var cube_corners = []
+				for i in range(2):
+					for j in range(2):
+						for k in range(2):
+							cube_corners.append(density_field[x+i][y+j][z+k])
+							
+				# checks if cube is mixed or not
+				for i in range(6):
+					state_of_cube = not (cube_corners[i] == cube_corners[i+1])
+					if state_of_cube: break
+					
+				if state_of_cube:
+					# interpolation TODO
+					pass
+				
+				
+				
+				
 
 func generate_mesh() -> void:
 	pass
