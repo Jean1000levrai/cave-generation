@@ -11,7 +11,8 @@ const TRI_TABLE = preload("res://scripts/tri_table.gd").TRI_TABLE
 	set(new_iso_level):
 		iso_level = new_iso_level
 		update_mesh()
-@export_range(4, 256, 4) var resolution := 32:
+
+@export_range(4, 256, 4) var resolution := 8:
 	set(new_resolution):
 		resolution = new_resolution
 		update_mesh()
@@ -31,17 +32,13 @@ const TRI_TABLE = preload("res://scripts/tri_table.gd").TRI_TABLE
 		noise.seed = noise_seed
 		update_mesh()
 
+
 var density_field = []   # 3D data storage
 var vertices = []
 var indices = []
-var step = grid_size / float(resolution)
 
 func generate_density_field() -> void:
 	density_field.resize(resolution)
-
-	# @tools
-	var new_step = grid_size / float(resolution)
-	step = new_step
 
 	for x in range(resolution):
 		density_field[x] = []
@@ -52,37 +49,29 @@ func generate_density_field() -> void:
 			density_field[x][y].resize(resolution)
 
 			for z in range(resolution):
-
-				var world_x = x * step
-				var world_y = y * step
-				var world_z = z * step
-
-				var value = noise.get_noise_3d(
-					world_x * frequency,
-					world_y * frequency,
-					world_z * frequency
-				)
+				var value = noise.get_noise_3d(x, y, z)
 				density_field[x][y][z] = value
 				
 func get_case_index(v: Array) -> int:
+# 	     y
+#        |
+#        4------5
+#       /|     /|
+#      7------6 |
+#      | |    | |
+#      | 0----|-1 -> x
+#      |/     |/
+#      3------2
+#     /
+#    z
 	var case_index := 0
-	# 	     y
-	#        |
-	#        4------5
-	#       /|     /|
-	#      7------6 |
-	#      | |    | |
-	#      | 0----|-1 -> x
-	#      |/     |/
-	#      3------2
-	#     /
-	#    z
 
 	for i in range(8):
 		if v[i] < iso_level:
 			case_index |= (1 << i)
 
 	return case_index
+
 
 func marching_cubes() -> void:
 	# loop over all cubes
@@ -142,13 +131,15 @@ func marching_cubes() -> void:
 					# interpolation (finds point on edge closest to iso-level)
 					# ---------------- COME BACK TO THIS ----------------
 					var t = (iso_level - va) / (vb - va)
-					edge_vertices[i] = p[a].lerp(p[b], t) * step
+					edge_vertices[i] = p[a].lerp(p[b], t)
 
 				# -------------------------
 				# 4. TRIANGLES (LOOKUP TABLE STAGE)
 				# -------------------------
 				var case = get_case_index(v)
+				print(case)
 				var tri = TRI_TABLE[case]
+				print(tri)
 
 				var i := 0
 				while i < tri.size() and tri[i] != -1:
@@ -171,25 +162,27 @@ func marching_cubes() -> void:
 					indices.append(base + 2)
 
 					i += 3
-						
+			
+				
+				
 func generate_mesh() -> void:
-	
-	var st = SurfaceTool.new()
-	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var verts = PackedVector3Array(vertices)
+	var inds = PackedInt32Array(indices)
 
-	for i in indices:
-		st.add_vertex(vertices[i])
+	var mesh_array = []
+	mesh_array.resize(Mesh.ARRAY_MAX)
 
-	st.generate_normals()
-	mesh = st.commit()
+	mesh_array[Mesh.ARRAY_VERTEX] = verts
+	mesh_array[Mesh.ARRAY_INDEX] = inds
 
+	var array_mesh = ArrayMesh.new()
+	array_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, mesh_array)
 
+	mesh = array_mesh
 
 func update_mesh() -> void:
 	vertices.clear()
 	indices.clear()
-	if mesh:
-		mesh.clear_surfaces()
 
 	# 1. gen density field
 	generate_density_field()
